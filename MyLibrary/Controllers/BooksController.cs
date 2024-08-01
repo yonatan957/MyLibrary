@@ -179,6 +179,7 @@ namespace MyLibrary.Controllers
                 Shelf.ShelfWidth -= width;
                 _context.Update(Shelf);
                 await _context.SaveChangesAsync();
+                TempData["idshelf"] = Shelf.GenreId;
             }
             TempData["SuccessMessage"] = "המשימה בוצעה בהצלחה";
             return View(bookAdd);
@@ -224,7 +225,7 @@ namespace MyLibrary.Controllers
                 _context.Book.Remove(book);
             }
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { book.ShelfId });
+            return RedirectToAction(nameof(Index), new { id = Shelf.ShelfId });
         }
 
         ////GET: Books/Add/Id
