@@ -1,0 +1,52 @@
+﻿@model MyLibrary.ViewModels.BookAdd
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>הוסף</h1>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+<h4>Book</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Book.bookName" class="control-label"></label>
+                <input asp-for="Book.bookName" class="form-control" />
+                <span asp-validation-for="Book.bookName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Book.bookWidth" class="control-label"></label>
+                <input asp-for="Book.bookWidth" class="form-control" />
+                <span asp-validation-for="Book.bookWidth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Book.bookHeight" class="control-label"></label>
+                <input asp-for="Book.bookHeight" class="form-control" />
+                <span asp-validation-for="Book.bookHeight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Book.Set" class="control-label"></label>
+                <input asp-for="Book.Set" type="checkbox" class="form-check-input" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Genre" asp-action="Index">חזרה לרשימה</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

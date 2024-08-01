@@ -1,0 +1,42 @@
+﻿@model MyLibrary.ViewModels.GenreAddShelf
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+<h1>הוסף מדף</h1>
+
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form action="Add" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Genre.GenreId" />
+            <div class="form-group">
+                <label asp-for="height" class="control-label"></label>
+                <input asp-for="height" class="form-control" type="number" step="any" />
+                <span asp-validation-for="height" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="width" class="control-label"></label>
+                <input asp-for="width" class="form-control" type="number" step="any" />
+                <span asp-validation-for="width" class="text-danger"></span>
+            </div>
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <input type="submit" value="Add" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">חזרה לרשימה</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

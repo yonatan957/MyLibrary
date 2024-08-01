@@ -1,0 +1,37 @@
+﻿@model IEnumerable<MyLibrary.Models.Genre>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>ראשי</h1>
+
+<p>
+    <a asp-action="Create">צור חדש</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.GenreId">עריכה</a> |
+                <a asp-action="Details" asp-route-id="@item.GenreId">פרטים</a> |
+                <a asp-action="Delete" asp-route-id="@item.GenreId">מחיקה</a>|
+                <a asp-action="Add" asp-route-id="@item.GenreId">הוסף מדף</a>|
+                <a asp-controller="Books" asp-action="Create" asp-route-id="@item.GenreId">הוסף ספר</a>|
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
