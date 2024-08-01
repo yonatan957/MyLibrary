@@ -3,45 +3,77 @@
 @{
     ViewData["Title"] = "Index";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ShelfWidth)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ShelfHeight)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Genre)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShelfWidth)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShelfHeight)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Genre.GenreId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ShelfId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ShelfId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ShelfId">Delete</a>
-            </td>
-        </tr>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+    TempData["ErrorMessage"] = null;
 }
-    </tbody>
-</table>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+    TempData["SuccessMessage"] = null;
+}
+
+<h1>מדפים</h1>
+<div class="accordion" id="accordionExample">
+    @foreach (var item in Model)
+    {
+        var collapseId = $"collapse{item.ShelfId}";
+        var headingId = $"heading{item.ShelfId}";
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="@headingId">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                    @item.ShelfId
+                </button>
+            </h2>
+            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ShelfWidth)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ShelfHeight)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Genre)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ShelfWidth)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ShelfHeight)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Genre.GenreId)
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.ShelfId">שינוי</a> |
+                                    <a asp-action="Details" asp-route-id="@item.ShelfId">פרטים</a> |
+                                    <a asp-action="Delete" asp-route-id="@item.ShelfId">מחיקה</a>|
+                                    <a asp-controller="Books" asp-action="AddToShelf" asp-route-id="@item.ShelfId">הוסף ספר</a>|
+                                    <a asp-controller="Books" asp-action="index" asp-route-id="@item.ShelfId">רשימת ספרים</a>|
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div>
+    <a asp-controller="Genres" asp-action="Index">חזרה לרשימה</a>
+</div>

@@ -45,7 +45,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="BookId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">חזרה לרשימה</a>
+        <input type="submit" value="מחיקה" class="btn btn-danger" /> |
+        <a asp-action="Index" asp-route-id=@Model.ShelfId>חזרה לרשימה</a>
     </form>
 </div>

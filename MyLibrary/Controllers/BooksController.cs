@@ -22,12 +22,14 @@ namespace MyLibrary.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            var libraryDb = await _context.Book.Include(b => b.Genre).Include(b => b.Shelf).ToListAsync();
+            var libraryDb = await _context.Book.Include(b => b.Genre).Include(b => b.Shelf).Where(b => b.ShelfId == id).ToListAsync();
+            var shelf = _context.Shelf.Include(s => s.Genre).Where(s => s.ShelfId == id).FirstOrDefault();
+            TempData["idshelf"] = shelf.GenreId;
             return View( libraryDb);
         }
-
+        
         // GET: Books/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -57,7 +59,6 @@ namespace MyLibrary.Controllers
             };
             return View(bookAdd);
         }
-
         // POST: Books/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -67,24 +68,119 @@ namespace MyLibrary.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (bookAdd.Book.Count > 1)
+                {
+                    bookAdd.Book[0].Set = true;
+                    if (string.IsNullOrEmpty(bookAdd.set))
+                    {
+                        TempData["ErrorMessage"] = "הכנס שם סט";
+                        return View(bookAdd);
+                    }
+                    foreach (var item in bookAdd.Book) 
+                    {
+                        item.bookName = $"{bookAdd.set}-{item.bookName}";
+                    }
+                }
+                int width = 0;
+                foreach(Book book in bookAdd.Book)
+                {
+                    if (book.bookHeight <= 0 ||  book.bookWidth <= 0)
+                    {
+                        TempData["ErrorMessage"] = "גדלים לא חוקיים";
+                        return View(book);
+                    }
+                    width += book.bookWidth;
+                }
                 var shelvesDb = await _context.Shelf.Where(s => s.GenreId == bookAdd.id).ToListAsync();
-                var Shelf = LogicServer.setShlf(shelvesDb, bookAdd.Book.bookWidth, bookAdd.Book.bookHeight);
+                var Shelf = LogicServer.setShlf(shelvesDb, width, bookAdd.Book[0].bookHeight);
                 if (Shelf == null)
                 {
-                    TempData["ErrorMessage"] = "Shelf not found. Please return and create new shelf.";
+                    TempData["ErrorMessage"] = "לא נמצא מדף, אנה הוסף מדף ונסה שנית";
                     return View(bookAdd);
                 }
-                bookAdd.Book.ShelfId = Shelf.ShelfId;
-                bookAdd.Book.GenreId = bookAdd.id;
-                Shelf.ShelfWidth -= bookAdd.Book.bookWidth;
-                _context.Update(Shelf);
-                _context.Add(bookAdd.Book);
-                await _context.SaveChangesAsync();
-                if (Shelf.ShelfHeight - bookAdd.Book.bookHeight >= 10)
+                foreach (Book book in bookAdd.Book)
                 {
-                    TempData["ErrorMessage"] = "הספר נמוך יחסית למדף, הוכנס בכל זאת";
+                    book.ShelfId = Shelf.ShelfId;
+                    book.GenreId = bookAdd.id;
+                    _context.Add(book);
+                    if (Shelf.ShelfHeight - book.bookHeight >= 10)
+                    {
+                        TempData["ErrorMessage"] = "הספר נמוך יחסית למדף, הוכנס בכל זאת";
+                    }
                 }
+                Shelf.ShelfWidth -= width;
+                _context.Update(Shelf);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "המשימה בוצעה בהצלחה";
             }
+            return View(bookAdd);
+        }
+
+        // GET: Books/Create/1
+        public IActionResult AddToShelf(int id)
+        {
+            BookAdd bookAdd = new BookAdd()
+            {
+                id = id
+            };
+            TempData["idshelf"] = _context.Shelf.Where(s => s.ShelfId == id).FirstOrDefault().GenreId;
+            return View(bookAdd);
+        }
+        // POST: Books/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToShelf(BookAdd bookAdd)
+        {
+            if (ModelState.IsValid)
+            {
+                int width = 0;
+                if (bookAdd.Book.Count > 1)
+                {
+                    bookAdd.Book[0].Set = true;
+                    if (string.IsNullOrEmpty(bookAdd.set))
+                    {
+                        TempData["ErrorMessage"] = "הכנס שם סט";
+                        return View(bookAdd);
+                    }
+                    foreach (var item in bookAdd.Book)
+                    {
+                        item.bookName = $"{bookAdd.set}-{item.bookName}";
+                    }
+                }
+                foreach (var item in bookAdd.Book)
+                {
+                    if (item.bookHeight <= 0 || item.bookWidth <= 0)
+                    {
+                        TempData["ErrorMessage"] = "גדלים לא חוקיים";
+                        return View(bookAdd);
+                    }
+                    width += item.bookWidth;
+                }
+                var Shelf = await _context.Shelf
+                                .Include(s => s.Genre)
+                                .FirstOrDefaultAsync(m => m.ShelfId == bookAdd.id);
+                if (Shelf.ShelfWidth < width)
+                {
+                    TempData["ErrorMessage"] = "אין מקום במדף!";
+                    return View(bookAdd) ;
+                }
+                foreach (Book book in bookAdd.Book)
+                {
+                    book.ShelfId = bookAdd.id;
+                    book.GenreId = Shelf.GenreId;
+                    _context.Add(book);
+                    if (Shelf.ShelfHeight - book.bookHeight >= 10)
+                    {
+                        TempData["ErrorMessage"] = "הספר נמוך יחסית למדף, הוכנס בכל זאת";
+                    }
+                }
+                Shelf.ShelfWidth -= width;
+                _context.Update(Shelf);
+                await _context.SaveChangesAsync();
+            }
+            TempData["SuccessMessage"] = "המשימה בוצעה בהצלחה";
             return View(bookAdd);
         }
 
@@ -119,14 +215,16 @@ namespace MyLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var book = await _context.Book.FindAsync(id);
+            var book = await _context.Book.Include(b => b.Shelf).Where(b => b.BookId == id).FirstOrDefaultAsync();
+            var Shelf = book.Shelf ;
+            Shelf.ShelfWidth += book.bookWidth;
+            _context.Shelf.Update(Shelf);
             if (book != null)
             {
                 _context.Book.Remove(book);
             }
-
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { book.ShelfId });
         }
 
         ////GET: Books/Add/Id

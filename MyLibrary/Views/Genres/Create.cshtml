@@ -3,7 +3,20 @@
 @{
     ViewData["Title"] = "Create";
 }
-
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+    TempData["ErrorMessage"] = null;
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+    TempData["SuccessMessage"] = null;
+}
 <h1>צור ז'אנר</h1>
 
 <hr />

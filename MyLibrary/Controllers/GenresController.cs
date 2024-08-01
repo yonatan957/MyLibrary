@@ -61,8 +61,10 @@ namespace MyLibrary.Controllers
             {
                 _context.Add(genre);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "נוסף בהצלחה";
                 return RedirectToAction(nameof(Index));
             }
+            TempData["ErrorMessage"] = "ערכים אינם תקינים";
             return View(genre);
         }
 
@@ -140,15 +142,35 @@ namespace MyLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var genre = await _context.Genre.FindAsync(id);
-            if (genre != null)
+            var genre = await _context.Genre
+                .Include(g => g.shelves)
+                .Include(g => g.books)
+                .FirstOrDefaultAsync(g => g.GenreId == id);
+
+            if (genre == null)
             {
-                _context.Genre.Remove(genre);
+                TempData["ErrorMessage"] = "לא נמצא ז'אנר עם מזהה זה.";
+                return RedirectToAction(nameof(Index));
             }
 
+            if (genre.shelves.Count > 0)
+            {
+                foreach(Book book in genre.books)
+                {
+                    _context.Book.Remove(book);
+                }
+                foreach(Shelf shelf in genre.shelves)
+                {
+                    _context.Shelf.Remove(shelf);
+                }
+            }
+
+            _context.Genre.Remove(genre);
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "הז'אנר נמחק בהצלחה";
             return RedirectToAction(nameof(Index));
         }
+
         //GET: Genres/Add/Id
         public async Task<IActionResult> Add(int? id)
         {
@@ -181,15 +203,14 @@ namespace MyLibrary.Controllers
             {
                 return NotFound();
             }
-            if (genreAddShelf.height == null)
+            if (genreAddShelf.height == null || genreAddShelf.height <= 0)
             {
-                ModelState.AddModelError("height", "height is required.");
+                TempData["ErrorMessage"] = "גובה לא תקין";
                 return View(genreAddShelf);
             }
-            int width;
-            if (genreAddShelf.width == null)
+            if (genreAddShelf.width == null || genreAddShelf.width <= 0)
             {
-                ModelState.AddModelError("width", "width is required.");
+                TempData["ErrorMessage"] = "רוחב לא תקין";
                 return View(genreAddShelf);
             }
             Shelf shelf = new Shelf()
@@ -200,8 +221,9 @@ namespace MyLibrary.Controllers
                 Genre = genre,
             };
             _context.Add(shelf);
-            await _context.SaveChangesAsync();            
-            return View(genreAddShelf);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "מדף נוסף בהצלחה";
+            return RedirectToAction(nameof(Index));
         }
 
         private bool GenreExists(int id)

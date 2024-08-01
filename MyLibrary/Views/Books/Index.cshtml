@@ -4,61 +4,79 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>ראשי</h1>
+<h1>ספרים במדף</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.bookName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.bookWidth)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.bookHeight)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Genre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Shelf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Set)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.bookName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.bookWidth)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.bookHeight)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Genre.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Shelf.ShelfId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Set)
-            </td>
-            <td>
-                <a asp-action="Delete" asp-route-id="@item.BookId">מחיקה</a>
-                <a asp-action="Details" asp-route-id="@item.BookId">מידע</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="accordion" id="accordionExample">
+    @foreach (var item in Model)
+    {
+        var collapseId = $"collapse{item.BookId}";
+        var headingId = $"heading{item.BookId}";
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="@headingId">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                    @item.bookName
+                </button>
+            </h2>
+            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.bookName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.bookWidth)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.bookHeight)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Genre)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Shelf)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Set)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.bookName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.bookWidth)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.bookHeight)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Genre.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Shelf.ShelfId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Set)
+                                </td>
+                                <td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.BookId">מחיקה</a>
+                                    <a asp-action="Details" asp-route-id="@item.BookId">מידע</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div>
+    <a asp-controller="Shelves" asp-action="Index" asp-route-id=@TempData["idshelf"]>חזרה לרשימת המדפים</a>
+</div>

@@ -35,7 +35,7 @@ namespace MyLibrary
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Genres}/{action=Index}/{id?}");
 
             app.Run();
         }

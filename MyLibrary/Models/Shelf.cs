@@ -6,7 +6,9 @@ namespace MyLibrary.Models
     {
         [Key]
         public int ShelfId { get; set; }
+        [Display(Name = "מקום פנוי")]
         public int ShelfWidth { get; set; }
+        [Display(Name = "גובה")]
         public int ShelfHeight { get; set; }
         public int GenreId { get; set; }
         public Genre Genre { get; set; }

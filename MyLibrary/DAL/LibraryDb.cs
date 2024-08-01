@@ -19,19 +19,19 @@ namespace MyLibrary.DAL
                 .HasOne(b => b.Shelf)
                 .WithMany(s => s.Books)
                 .HasForeignKey(b => b.ShelfId)
-                .OnDelete(DeleteBehavior.ClientCascade); // מחיקה מחזורית של ספרים כאשר מחיקים מדף
+                .OnDelete(DeleteBehavior.ClientCascade); 
 
             modelBuilder.Entity<Book>()
                 .HasOne(b => b.Genre)
                 .WithMany(g => g.books)
                 .HasForeignKey(b => b.GenreId)
-                .OnDelete(DeleteBehavior.Restrict); // או DeleteBehavior.NoAction כדי למנוע מחיקה מחזורית
+                .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<Shelf>()
                 .HasOne(s => s.Genre)
                 .WithMany(g => g.shelves)
                 .HasForeignKey(s => s.GenreId)
-                .OnDelete(DeleteBehavior.Restrict); // או DeleteBehavior.NoAction כדי למנוע מחיקה מחזורית
+                .OnDelete(DeleteBehavior.Restrict); 
 
             base.OnModelCreating(modelBuilder);
         }

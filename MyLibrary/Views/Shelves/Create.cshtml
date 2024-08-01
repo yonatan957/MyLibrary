@@ -3,10 +3,22 @@
 @{
     ViewData["Title"] = "Create";
 }
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+    TempData["ErrorMessage"] = null;
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+    TempData["SuccessMessage"] = null;
+}
+<h1>יצירת מדף</h1>
 
-<h1>Create</h1>
-
-<h4>Shelf</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -34,7 +46,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-id=@Model.GenreId>חזרה לרשימה</a>
 </div>
 
 @section Scripts {

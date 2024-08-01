@@ -4,34 +4,63 @@
     ViewData["Title"] = "Index";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+    TempData["ErrorMessage"] = null;
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+    TempData["SuccessMessage"] = null;
+}
 <h1>ראשי</h1>
 
 <p>
     <a asp-action="Create">צור חדש</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.GenreId">עריכה</a> |
-                <a asp-action="Details" asp-route-id="@item.GenreId">פרטים</a> |
-                <a asp-action="Delete" asp-route-id="@item.GenreId">מחיקה</a>|
-                <a asp-action="Add" asp-route-id="@item.GenreId">הוסף מדף</a>|
-                <a asp-controller="Books" asp-action="Create" asp-route-id="@item.GenreId">הוסף ספר</a>|
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="accordion" id="accordionExample">
+    @foreach (var item in Model)
+    {
+        var collapseId = $"collapse{item.GenreId}";
+        var headingId = $"heading{item.GenreId}";
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="@headingId">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                    @item.Name
+                </button>
+            </h2>
+            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ז'אנר</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.GenreId">עריכה</a> |
+                                    <a asp-action="Details" asp-route-id="@item.GenreId">פרטים</a> |
+                                    <a asp-action="Delete" asp-route-id="@item.GenreId">מחיקה</a>|
+                                    <a asp-action="Add" asp-route-id="@item.GenreId">הוסף מדף</a>|
+                                    <a asp-controller="Books" asp-action="Create" asp-route-id="@item.GenreId">הוסף ספר</a>|
+                                    <a asp-controller="Shelves" asp-action="index" asp-route-id="@item.GenreId">רשימת מדפים</a>|
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

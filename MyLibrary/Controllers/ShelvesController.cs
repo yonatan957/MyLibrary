@@ -20,9 +20,9 @@ namespace MyLibrary.Controllers
         }
 
         // GET: Shelves
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            var libraryDb = _context.Shelf.Include(s => s.Genre);
+            var libraryDb = _context.Shelf.Include(s => s.Genre).Where(s => s.GenreId == id);
             return View(await libraryDb.ToListAsync());
         }
 
@@ -146,14 +146,26 @@ namespace MyLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var shelf = await _context.Shelf.FindAsync(id);
-            if (shelf != null)
+            var Shelf = await _context.Shelf
+                .Include(s => s.Books)
+                .FirstOrDefaultAsync(s => s.ShelfId == id);
+            if (Shelf == null)
             {
-                _context.Shelf.Remove(shelf);
+                TempData["ErrorMessage"] = "לא נמצא ז'אנר עם מזהה זה.";
+                return RedirectToAction(nameof(Index));
             }
-
+            if (Shelf.Books.Count > 0)
+            {
+                foreach (var book in Shelf.Books) 
+                {
+                    _context.Book.Remove(book);
+                }
+            }
+            id = Shelf.GenreId;
+            _context.Shelf.Remove(Shelf);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            TempData["SuccessMessage"] = "הז'אנר נמחק בהצלחה";
+            return RedirectToAction(nameof(Index),new {id});
         }
 
         private bool ShelfExists(int id)
